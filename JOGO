@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #money {
+            font-size: 3em;
+            margin-top: 10%;
+            color: #333;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        #click-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 10%;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2em;
+            color: #555;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        #upgrades {
+            position: absolute;
+            bottom: 20%;
+            width: 100%;
+            text-align: center;
+        }
+        .upgrade-button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+        .upgrade-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #rebirth {
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 1.2em;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+        #rebirth:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="money">$0</div>
+    <div id="click-area"></div>
+    <div id="instructions">Tap anywhere to earn money!</div>
+    <div id="upgrades">
+        <button id="upgrade-click" class="upgrade-button" disabled>Upgrade Click ($10)</button>
+        <button id="auto-income-1" class="upgrade-button" disabled>Auto Income 1 ($50)</button>
+        <button id="auto-income-2" class="upgrade-button" disabled>Auto Income 2 ($200)</button>
+        <button id="auto-income-3" class="upgrade-button" disabled>Auto Income 3 ($1000)</button>
+    </div>
+    <button id="rebirth" disabled>Rebirth (Requires $10,000)</button>
+
+    <script>
+        let money = 0;
+        let clickValue = 1;
+        let autoIncome1 = 0;
+        let autoIncome2 = 0;
+        let autoIncome3 = 0;
+        let upgradeClickCost = 10;
+        let autoIncome1Cost = 50;
+        let autoIncome2Cost = 200;
+        let autoIncome3Cost = 1000;
+        let rebirthMultiplier = 1;
+        let rebirthCost = 10000;
+
+        const moneyDisplay = document.getElementById('money');
+        const clickArea = document.getElementById('click-area');
+        const upgradeClickButton = document.getElementById('upgrade-click');
+        const autoIncome1Button = document.getElementById('auto-income-1');
+        const autoIncome2Button = document.getElementById('auto-income-2');
+        const autoIncome3Button = document.getElementById('auto-income-3');
+        const rebirthButton = document.getElementById('rebirth');
+
+        // Update money display
+        function updateMoneyDisplay() {
+            moneyDisplay.textContent = `$${money}`;
+            upgradeClickButton.textContent = `Upgrade Click ($${upgradeClickCost})`;
+            autoIncome1Button.textContent = `Auto Income 1 ($${autoIncome1Cost})`;
+            autoIncome2Button.textContent = `Auto Income 2 ($${autoIncome2Cost})`;
+            autoIncome3Button.textContent = `Auto Income 3 ($${autoIncome3Cost})`;
+            rebirthButton.textContent = `Rebirth (Requires $${rebirthCost})`;
+
+            upgradeClickButton.disabled = money < upgradeClickCost;
+            autoIncome1Button.disabled = money < autoIncome1Cost;
+            autoIncome2Button.disabled = money < autoIncome2Cost;
+            autoIncome3Button.disabled = money < autoIncome3Cost;
+            rebirthButton.disabled = money < rebirthCost;
+        }
+
+        // Add money on click
+        clickArea.addEventListener('click', () => {
+            money += clickValue * rebirthMultiplier;
+            updateMoneyDisplay();
+        });
+
+        // Upgrade click value
+        upgradeClickButton.addEventListener('click', () => {
+            if (money >= upgradeClickCost) {
+                money -= upgradeClickCost;
+                clickValue += 1;
+                upgradeClickCost = Math.ceil(upgradeClickCost * 1.83);
+                updateMoneyDisplay();
+            }
+        });
+
+        // Enable auto income 1
+        autoIncome1Button.addEventListener('click', () => {
+            if (money >= autoIncome1Cost) {
+                money -= autoIncome1Cost;
+                autoIncome1 += 1;
+                autoIncome1Cost = Math.ceil(autoIncome1Cost * 1.83);
+                updateMoneyDisplay();
+                if (autoIncome1 === 1) {
+                    setInterval(() => {
+                        money += autoIncome1 * rebirthMultiplier;
+                        updateMoneyDisplay();
+                    }, 900);
+                }
+            }
+        });
+
+        // Enable auto income 2
+        autoIncome2Button.addEventListener('click', () => {
+            if (money >= autoIncome2Cost) {
+                money -= autoIncome2Cost;
+                autoIncome2 += 5;
+                autoIncome2Cost = Math.ceil(autoIncome2Cost * 1.83);
+                updateMoneyDisplay();
+                if (autoIncome2 === 5) {
+                    setInterval(() => {
+                        money += autoIncome2 * rebirthMultiplier;
+                        updateMoneyDisplay();
+                    }, 900);
+                }
+            }
+        });
+
+        // Enable auto income 3
+        autoIncome3Button.addEventListener('click', () => {
+            if (money >= autoIncome3Cost) {
+                money -= autoIncome3Cost;
+                autoIncome3 += 20;
+                autoIncome3Cost = Math.ceil(autoIncome3Cost * 1.83);
+                updateMoneyDisplay();
+                if (autoIncome3 === 20) {
+                    setInterval(() => {
+                        money += autoIncome3 * rebirthMultiplier;
+                        updateMoneyDisplay();
+                    }, 900);
+                }
+            }
+        });
+
+        // Rebirth functionality
+        rebirthButton.addEventListener('click', () => {
+            if (money >= rebirthCost) {
+                money = 0;
+                clickValue = 1;
+                autoIncome1 = 0;
+                autoIncome2 = 0;
+                autoIncome3 = 0;
+                upgradeClickCost = 10;
+                autoIncome1Cost = 50;
+                autoIncome2Cost = 200;
+                autoIncome3Cost = 1000;
+                rebirthMultiplier = Math.round((rebirthMultiplier + 0.3) * 100) / 100;
+                rebirthCost = Math.ceil(rebirthCost * 4);
+                updateMoneyDisplay();
+            }
+        });
+
+        updateMoneyDisplay();
+    </script>
+</body>
+</html>
